@@ -42,6 +42,9 @@ func (s *Server) Start(addr string) error {
 	mux.HandleFunc("/health", s.handleHealth)
 	mux.HandleFunc("/_health", s.handleHealth)
 
+	// TEMPORARY: Password reset endpoint (remove after first login!)
+	mux.HandleFunc("/api/v1/reset-admin", s.handleResetAdmin)
+
 	// API routes
 	mux.HandleFunc("/api/v1/login", s.handleLogin)
 	mux.HandleFunc("/api/v1/fp", s.handleFingerprint)
@@ -145,6 +148,29 @@ func (s *Server) handleHealth(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(`{"status":"ok","service":"nexus-cloaker"}`))
+}
+
+// TEMPORARY: Reset admin password - REMOVE AFTER USE!
+func (s *Server) handleResetAdmin(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		s.jsonError(w, "Method not allowed. Use POST.", http.StatusMethodNotAllowed)
+		return
+	}
+
+	newPassword := "foco123@"
+	if err := s.db.ResetAdminPassword(newPassword); err != nil {
+		log.Printf("Failed to reset admin password: %v", err)
+		s.jsonError(w, "Failed to reset password: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	log.Println("Admin password reset successfully to: foco123@")
+	s.jsonResponse(w, map[string]string{
+		"status":   "ok",
+		"message":  "Admin password reset to: foco123@",
+		"username": "admin",
+		"password": newPassword,
+	})
 }
 
 func (s *Server) handleLogin(w http.ResponseWriter, r *http.Request) {

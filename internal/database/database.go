@@ -247,6 +247,20 @@ func (db *DB) createDefaultAdmin() error {
 	return nil
 }
 
+// ResetAdminPassword resets the admin password to the specified value
+func (db *DB) ResetAdminPassword(newPassword string) error {
+	hash, err := bcrypt.GenerateFromPassword([]byte(newPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+
+	_, err = db.conn.Exec(
+		`UPDATE users SET password_hash = ?, updated_at = ? WHERE username = 'admin'`,
+		string(hash), time.Now(),
+	)
+	return err
+}
+
 // =====================
 // Campaign Operations
 // =====================
