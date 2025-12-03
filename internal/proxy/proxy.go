@@ -40,7 +40,7 @@ type Server struct {
 func New(cfg config.ProxyConfig, detector *detection.Engine, db *database.DB) *Server {
 	// Initialize cache
 	cacheConfig := bigcache.DefaultConfig(cfg.CacheTTL)
-	cacheConfig.MaxEntrySizeInBytes = 10 * 1024 * 1024 // 10MB max per entry
+	cacheConfig.MaxEntrySize = 10 * 1024 * 1024 // 10MB max per entry
 	cache, _ := bigcache.New(context.Background(), cacheConfig)
 
 	return &Server{
@@ -117,9 +117,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Get TLS info if available
 	if r.TLS != nil {
 		reqInfo.TLSVersion = r.TLS.Version
-		if len(r.TLS.CipherSuites) > 0 {
-			reqInfo.TLSCipher = r.TLS.CipherSuites[0]
-		}
+		reqInfo.TLSCipher = r.TLS.CipherSuite
 	}
 
 	// Quick check first (fast path for obvious bots)
