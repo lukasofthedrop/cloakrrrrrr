@@ -261,6 +261,36 @@ func (db *DB) ResetAdminPassword(newPassword string) error {
 	return err
 }
 
+// ListAllUsers returns all users for debugging
+func (db *DB) ListAllUsers() ([]map[string]string, error) {
+	rows, err := db.conn.Query("SELECT id, username, password_hash, created_at FROM users")
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var users []map[string]string
+	for rows.Next() {
+		var id, username, hash string
+		var createdAt time.Time // Scan as time.Time
+		if err := rows.Scan(&id, &username, &hash, &createdAt); err != nil {
+			// Try scanning as string if time fails (sqlite sometimes stores as string)
+			var createdAtStr string
+			if err2 := rows.Scan(&id, &username, &hash, &createdAtStr); err2 != nil {
+				continue
+			}
+			createdAt, _ = time.Parse(time.RFC3339, createdAtStr)
+		}
+		users = append(users, map[string]string{
+			"id":         id,
+			"username":   username,
+			"hash_start": hash[:10] + "...",
+			"created_at": createdAt.String(),
+		})
+	}
+	return users, nil
+}
+
 // =====================
 // Campaign Operations
 // =====================
