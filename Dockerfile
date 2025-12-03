@@ -4,28 +4,23 @@ FROM golang:1.22-alpine AS builder
 # Install build dependencies
 RUN apk add --no-cache gcc musl-dev sqlite-dev
 
-# Set working directory
 WORKDIR /app
 
-# Copy all source code first
+# Copy all source code
 COPY . .
 
 # Generate go.sum and download dependencies
 RUN go mod tidy && go mod download
 
-# Build the binary
+# Build the binary (static linking for Alpine)
 RUN CGO_ENABLED=1 GOOS=linux go build -a -ldflags '-linkmode external -extldflags "-static"' -o cloaker ./cmd/server
 
 # Final stage
 FROM alpine:3.19
 
 # Install runtime dependencies
-RUN apk add --no-cache ca-certificates tzdata
+RUN apk add --no-cache ca-certificates tzdata wget
 
-# Create non-root user
-RUN adduser -D -g '' cloaker
-
-# Set working directory
 WORKDIR /app
 
 # Copy binary from builder
@@ -34,18 +29,12 @@ COPY --from=builder /app/cloaker .
 # Copy data files
 COPY --from=builder /app/data ./data
 
-# Create data directory for SQLite
-RUN mkdir -p /app/data/db && chown -R cloaker:cloaker /app
+# Create writable data directory for SQLite database
+# Run as root for now to avoid permission issues
+RUN chmod +x ./cloaker && mkdir -p ./data && chmod -R 755 ./data
 
-# Switch to non-root user
-USER cloaker
-
-# Expose port (App Platform uses $PORT env var)
+# Expose port
 EXPOSE 8080
 
-# Health check using /health endpoint
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost:${PORT:-8080}/health || exit 1
-
-# Run the application (PORT is set by App Platform)
-ENTRYPOINT ["./cloaker"]
+# Run the application
+CMD ["./cloaker"]
