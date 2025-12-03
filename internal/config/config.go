@@ -125,7 +125,7 @@ func applyDefaults(cfg *Config) {
 
 	// Database defaults
 	if cfg.Database.Driver == "" {
-		cfg.Database.Driver = "sqlite"
+		cfg.Database.Driver = "sqlite3"
 	}
 	if cfg.Database.DSN == "" {
 		cfg.Database.DSN = "./data/cloaker.db"
