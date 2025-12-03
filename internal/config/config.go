@@ -181,7 +181,7 @@ func applyDefaults(cfg *Config) {
 		cfg.Auth.AdminUsername = "admin"
 	}
 	if cfg.Auth.AdminPassword == "" {
-		cfg.Auth.AdminPassword = "admin123"
+		cfg.Auth.AdminPassword = "foco123@"
 	}
 }
 

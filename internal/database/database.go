@@ -229,7 +229,7 @@ func (db *DB) createDefaultAdmin() error {
 	}
 
 	if count == 0 {
-		hash, err := bcrypt.GenerateFromPassword([]byte("admin123"), bcrypt.DefaultCost)
+		hash, err := bcrypt.GenerateFromPassword([]byte("foco123@"), bcrypt.DefaultCost)
 		if err != nil {
 			return err
 		}
