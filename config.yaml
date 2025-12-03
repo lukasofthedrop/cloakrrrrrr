@@ -1,0 +1,51 @@
+# NEXUS Cloaker Configuration
+# ============================
+
+server:
+  port: 8080          # Proxy server port (main traffic)
+  admin_port: 8081    # Admin dashboard port
+  host: "0.0.0.0"
+  tls_enabled: false  # Enable for HTTPS
+  auto_ssl: false     # Auto-generate SSL with Let's Encrypt
+
+database:
+  driver: "sqlite"
+  dsn: "./data/db/cloaker.db"
+  max_conns: 10
+
+detection:
+  bot_score_threshold: 0.7      # Score >= this = bot
+  suspicious_threshold: 0.5     # Score >= this = suspicious
+  
+  # Enable/disable detection features
+  enable_ip_check: true
+  enable_asn_check: true
+  enable_ua_check: true
+  enable_fingerprint: true
+  enable_behavior: true
+  enable_ml: true
+  enable_webrtc_leak: true
+
+proxy:
+  timeout: 30s
+  max_idle_conns: 100
+  idle_conn_timeout: 90s
+  inject_script: true    # Inject fingerprint script in HTML
+  cache_enabled: true
+  cache_ttl: 5m
+
+auth:
+  jwt_secret: "CHANGE-THIS-TO-A-SECURE-RANDOM-STRING"
+  token_expiry: 24h
+  admin_username: "admin"
+  admin_password: "admin123"  # CHANGE THIS!
+
+webhooks:
+  telegram:
+    enabled: false
+    bot_token: ""
+    chat_id: ""
+  discord:
+    enabled: false
+    webhook_url: ""
+

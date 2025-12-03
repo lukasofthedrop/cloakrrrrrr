@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  cloaker:
+    build: .
+    container_name: nexus-cloaker
+    restart: unless-stopped
+    ports:
+      - "80:8080"      # Proxy port (main traffic)
+      - "8081:8081"    # Admin dashboard
+    volumes:
+      - cloaker_data:/app/data/db
+      - ./config.yaml:/app/config.yaml:ro
+      - ./data:/app/data:ro
+    environment:
+      - TZ=America/Sao_Paulo
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8081/api/v1/stats"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  cloaker_data:
+

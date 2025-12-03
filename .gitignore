@@ -1,0 +1,57 @@
+# Binaries
+cloaker
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary
+*.test
+
+# Output
+*.out
+
+# Dependency directories
+vendor/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Config with secrets
+config.local.yaml
+
+# Deployment
+deployment-info.txt
+
+# Certificates
+*.pem
+*.crt
+*.key
+
+# GeoIP database (download separately)
+*.mmdb
+
+# Temp
+/tmp/
+

@@ -1,0 +1,42 @@
+# Caddyfile for NEXUS Cloaker
+# ===========================
+# This provides automatic HTTPS for your domains
+
+# Example configuration for a single domain:
+# Replace 'yourdomain.com' with your actual domain
+
+# yourdomain.com {
+#     reverse_proxy cloaker:8080
+# }
+
+# Admin dashboard (restrict by IP or use auth)
+# admin.yourdomain.com {
+#     reverse_proxy cloaker:8081
+#     
+#     # Optional: Restrict to specific IPs
+#     # @allowed {
+#     #     remote_ip 1.2.3.4
+#     # }
+#     # handle @allowed {
+#     #     reverse_proxy cloaker:8081
+#     # }
+#     # respond "Forbidden" 403
+# }
+
+# Wildcard configuration (requires DNS challenge)
+# *.yourdomain.com {
+#     tls {
+#         dns cloudflare {env.CF_API_TOKEN}
+#     }
+#     reverse_proxy cloaker:8080
+# }
+
+# Default catch-all (for testing)
+:80 {
+    reverse_proxy cloaker:8080
+}
+
+:8443 {
+    reverse_proxy cloaker:8081
+}
+
