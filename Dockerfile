@@ -7,14 +7,11 @@ RUN apk add --no-cache gcc musl-dev sqlite-dev
 # Set working directory
 WORKDIR /app
 
-# Copy go mod files
-COPY go.mod go.sum* ./
-
-# Download dependencies
-RUN go mod download
-
-# Copy source code
+# Copy all source code first
 COPY . .
+
+# Generate go.sum and download dependencies
+RUN go mod tidy && go mod download
 
 # Build the binary
 RUN CGO_ENABLED=1 GOOS=linux go build -a -ldflags '-linkmode external -extldflags "-static"' -o cloaker ./cmd/server
@@ -52,4 +49,3 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
 
 # Run the application (PORT is set by App Platform)
 ENTRYPOINT ["./cloaker"]
-
