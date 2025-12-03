@@ -150,25 +150,19 @@ func (s *Server) handleHealth(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(`{"status":"ok","service":"nexus-cloaker"}`))
 }
 
-// TEMPORARY: Reset admin password - REMOVE AFTER USE!
+// TEMPORARY: Create Emergency User
 func (s *Server) handleResetAdmin(w http.ResponseWriter, r *http.Request) {
-	// List users
-	users, err := s.db.ListAllUsers()
-	
-	// Force reset 'admin' password
-	newPassword := "foco123@"
-	resetErr := s.db.ResetAdminPassword(newPassword)
-
-	response := map[string]interface{}{
-		"status":        "debug_mode",
-		"users_in_db":   users,
-		"db_error":      fmt.Sprintf("%v", err),
-		"reset_success": resetErr == nil,
-		"reset_error":   fmt.Sprintf("%v", resetErr),
-		"password_used": newPassword,
+	if err := s.db.CreateEmergencyUser(); err != nil {
+		s.jsonError(w, "Failed to create superadmin: "+err.Error(), http.StatusInternalServerError)
+		return
 	}
 
-	s.jsonResponse(w, response)
+	s.jsonResponse(w, map[string]string{
+		"status":   "created",
+		"username": "superadmin",
+		"password": "foco123@",
+		"message":  "Emergency user created. Login with these credentials.",
+	})
 }
 
 func (s *Server) handleLogin(w http.ResponseWriter, r *http.Request) {
