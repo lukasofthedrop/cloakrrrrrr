@@ -17,16 +17,20 @@ import (
 )
 
 func main() {
+	log.Println("🚀 NEXUS Cloaker starting...")
+	
 	// Parse flags
 	configPath := flag.String("config", "config.yaml", "Path to configuration file")
 	port := flag.Int("port", 8080, "Server port")
 	adminPort := flag.Int("admin-port", 8081, "Admin dashboard port")
 	flag.Parse()
 
+	log.Println("📋 Loading configuration...")
+	
 	// Load configuration
 	cfg, err := config.Load(*configPath)
 	if err != nil {
-		log.Printf("Warning: Could not load config file, using defaults: %v", err)
+		log.Printf("⚠️ Could not load config file, using defaults: %v", err)
 		cfg = config.Default()
 	}
 
@@ -35,7 +39,7 @@ func main() {
 		if p, err := strconv.Atoi(envPort); err == nil {
 			cfg.Server.Port = p
 			cfg.Server.AdminPort = p // Use same port for both in App Platform
-			log.Printf("Using PORT from environment: %d", p)
+			log.Printf("✅ Using PORT from environment: %d", p)
 		}
 	}
 
@@ -48,22 +52,28 @@ func main() {
 	}
 
 	// Initialize database
+	log.Printf("💾 Initializing database (driver: %s, dsn: %s)...", cfg.Database.Driver, cfg.Database.DSN)
 	db, err := database.New(cfg.Database)
 	if err != nil {
-		log.Fatalf("Failed to initialize database: %v", err)
+		log.Fatalf("❌ Failed to initialize database: %v", err)
 	}
 	defer db.Close()
+	log.Println("✅ Database initialized")
 
 	// Run migrations
+	log.Println("📦 Running migrations...")
 	if err := db.Migrate(); err != nil {
-		log.Fatalf("Failed to run migrations: %v", err)
+		log.Fatalf("❌ Failed to run migrations: %v", err)
 	}
+	log.Println("✅ Migrations completed")
 
 	// Initialize detection engine
+	log.Println("🔍 Initializing detection engine...")
 	detector, err := detection.NewEngine(cfg.Detection)
 	if err != nil {
-		log.Fatalf("Failed to initialize detection engine: %v", err)
+		log.Fatalf("❌ Failed to initialize detection engine: %v", err)
 	}
+	log.Println("✅ Detection engine initialized")
 
 	// Initialize proxy
 	proxyServer := proxy.New(cfg.Proxy, detector, db)

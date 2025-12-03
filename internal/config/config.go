@@ -130,6 +130,11 @@ func applyDefaults(cfg *Config) {
 	if cfg.Database.DSN == "" {
 		cfg.Database.DSN = "./data/cloaker.db"
 	}
+	
+	// Override JWT secret from environment
+	if envJWT := os.Getenv("JWT_SECRET"); envJWT != "" {
+		cfg.Auth.JWTSecret = envJWT
+	}
 	if cfg.Database.MaxConns == 0 {
 		cfg.Database.MaxConns = 10
 	}

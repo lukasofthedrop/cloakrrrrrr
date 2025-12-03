@@ -23,10 +23,12 @@ type DB struct {
 // New creates a new database connection
 func New(cfg config.DatabaseConfig) (*DB, error) {
 	// Ensure directory exists for SQLite
-	if cfg.Driver == "sqlite" {
+	if cfg.Driver == "sqlite3" || cfg.Driver == "sqlite" {
 		dir := filepath.Dir(cfg.DSN)
-		if err := os.MkdirAll(dir, 0755); err != nil {
-			return nil, fmt.Errorf("failed to create database directory: %w", err)
+		if dir != "" && dir != "." {
+			if err := os.MkdirAll(dir, 0755); err != nil {
+				return nil, fmt.Errorf("failed to create database directory: %w", err)
+			}
 		}
 	}
 

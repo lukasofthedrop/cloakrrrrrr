@@ -26,12 +26,11 @@ WORKDIR /app
 # Copy binary from builder
 COPY --from=builder /app/cloaker .
 
-# Copy data files
+# Copy data files (JSON detection data)
 COPY --from=builder /app/data ./data
 
-# Create writable data directory for SQLite database
-# Run as root for now to avoid permission issues
-RUN chmod +x ./cloaker && mkdir -p ./data && chmod -R 755 ./data
+# Ensure data directory is writable for SQLite database
+RUN chmod +x ./cloaker && chmod -R 777 ./data
 
 # Expose port
 EXPOSE 8080
