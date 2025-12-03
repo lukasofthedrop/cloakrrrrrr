@@ -38,9 +38,11 @@ type Server struct {
 
 // New creates a new proxy server
 func New(cfg config.ProxyConfig, detector *detection.Engine, db *database.DB) *Server {
-	// Initialize cache
+	// Initialize cache with minimal memory footprint for App Platform
 	cacheConfig := bigcache.DefaultConfig(cfg.CacheTTL)
-	cacheConfig.MaxEntrySize = 10 * 1024 * 1024 // 10MB max per entry
+	cacheConfig.MaxEntrySize = 1024 * 1024     // 1MB max per entry (reduced)
+	cacheConfig.HardMaxCacheSize = 50          // Max 50MB total cache
+	cacheConfig.Shards = 256                   // Fewer shards for less memory
 	cache, _ := bigcache.New(context.Background(), cacheConfig)
 
 	return &Server{

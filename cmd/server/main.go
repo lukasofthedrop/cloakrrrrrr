@@ -76,10 +76,14 @@ func main() {
 	log.Println("✅ Detection engine initialized")
 
 	// Initialize proxy
+	log.Println("🔄 Initializing proxy server...")
 	proxyServer := proxy.New(cfg.Proxy, detector, db)
+	log.Println("✅ Proxy server initialized")
 
 	// Initialize API server
+	log.Println("🔄 Initializing API server...")
 	apiServer := api.New(cfg, db, detector)
+	log.Println("✅ API server initialized")
 
 	// Start servers
 	errChan := make(chan error, 2)
